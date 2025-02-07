@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Kalkulator iOS</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #ffffff, #0000ff);
+            flex-direction: column;
+        }
+        .calculator {
+            width: 320px;
+            background: #222;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+        .display {
+            width: 100%;
+            height: 80px;
+            text-align: right;
+            font-size: 2.5em;
+            color: white;
+            padding: 10px;
+            overflow: hidden;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-gray { background: #A5A5A5; color: black; }
+        .btn-dark { background: #333; color: white; }
+        .btn-orange { background: #FF9500; color: white; }
+        .btn-zero {
+            grid-column: span 2;
+            width: 140px;
+            border-radius: 50px;
+            text-align: left;
+            padding-left: 20px;
+        }
+        button:active {
+            opacity: 0.7;
+        }
+        .history {
+            width: 320px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            font-size: 1em;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .history ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="btn-gray" onclick="clearDisplay()">AC</button>
+            <button class="btn-gray" onclick="invertSign()">+/-</button>
+            <button class="btn-gray" onclick="percentage()">%</button>
+            <button class="btn-orange" onclick="appendOperator('/')">÷</button>
+            
+            <button class="btn-dark" onclick="appendNumber(7)">7</button>
+            <button class="btn-dark" onclick="appendNumber(8)">8</button>
+            <button class="btn-dark" onclick="appendNumber(9)">9</button>
+            <button class="btn-orange" onclick="appendOperator('*')">×</button>
+            
+            <button class="btn-dark" onclick="appendNumber(4)">4</button>
+            <button class="btn-dark" onclick="appendNumber(5)">5</button>
+            <button class="btn-dark" onclick="appendNumber(6)">6</button>
+            <button class="btn-orange" onclick="appendOperator('-')">−</button>
+            
+            <button class="btn-dark" onclick="appendNumber(1)">1</button>
+            <button class="btn-dark" onclick="appendNumber(2)">2</button>
+            <button class="btn-dark" onclick="appendNumber(3)">3</button>
+            <button class="btn-orange" onclick="appendOperator('+')">+</button>
+            
+            <button class="btn-dark btn-zero" onclick="appendNumber(0)">0</button>
+            <button class="btn-dark" onclick="appendDecimal()">.</button>
+            <button class="btn-orange" onclick="calculateResult()">=</button>
+        </div>
+    </div>
+    <div class="history" id="history">
+        <strong>History:</strong>
+        <ul id="history-list"></ul>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let historyList = document.getElementById('history-list');
+        let currentInput = '';
+        let isResultDisplayed = false;
+
+        function appendNumber(num) {
+            if (isResultDisplayed) {
+                currentInput = '';
+                isResultDisplayed = false;
+            }
+            if (currentInput === '0') {
+                currentInput = '';
+            }
+            currentInput += num;
+            display.innerText = currentInput;
+        }
+
+        function appendOperator(op) {
+            if (!currentInput.endsWith(' ') && currentInput !== '') {
+                currentInput += ` ${op} `;
+                display.innerText = currentInput;
+                isResultDisplayed = false;
+            }
+        }
+
+        function appendDecimal() {
+            if (isResultDisplayed) {
+                currentInput = '';
+                isResultDisplayed = false;
+            }
+            let parts = currentInput.split(' ');
+            let lastPart = parts[parts.length - 1];
+            if (!lastPart.includes('.')) {
+                currentInput += '.';
+                display.innerText = currentInput;
+            }
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            display.innerText = currentInput;
+            isResultDisplayed = false;
+        }
+
+        function invertSign() {
+            if (!isNaN(currentInput)) {
+                currentInput = (parseFloat(currentInput) * -1).toString();
+                display.innerText = currentInput;
+            }
+        }
+
+        function percentage() {
+            if (!isNaN(currentInput)) {
+                currentInput = (parseFloat(currentInput) / 100).toString();
+                display.innerText = currentInput;
+            }
+        }
+
+        function calculateResult() {
+            try {
+                let result = eval(currentInput);
+                let historyEntry = document.createElement('li');
+                historyEntry.innerText = `${currentInput} = ${result}`;
+                historyList.appendChild(historyEntry);
+                historyList.scrollTop = historyList.scrollHeight;
+                currentInput = result.toString();
+                display.innerText = currentInput;
+                isResultDisplayed = true;
+            } catch {
+                display.innerText = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>
